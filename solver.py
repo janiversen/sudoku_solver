@@ -40,7 +40,7 @@ class solver():
                 vector = self.puzzle.cubes[v_inx]
 
             dirty.update(self._rule_single_digit(vector))
-            
+
 
     def _rule_single_digit(self, vector):
         digit_count = [[0,-1,-1] for digit in range(10)]

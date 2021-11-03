@@ -2,8 +2,9 @@
 
 for i in {1..100}
 do
-    for tx in "simple"
+    for tx in "simple" "complex"
     do
+        echo "testing $tx"
         python __main__.py $tx
         if [ $? -ne 0 ]
         then
