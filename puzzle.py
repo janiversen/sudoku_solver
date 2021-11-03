@@ -3,11 +3,16 @@ ROW = "row"
 COL = "col"
 CUBE = "cube"
 
+class no_solution(Exception):
+    pass
+
+
 class puzzle:
     def __init__(self):
         self.board = [[set([cell for cell in range(1,10)])
             for col in range(9)] for row in range(9)]
 
+        self.cells = set([(row,col) for col in range(9) for row in range(9)])
         self.rows = [set([(row,col) for col in range(9)]) for row in range(9)]
         self.cols = [set([(row,col) for row in range(9)]) for col in range(9)]
         self.cubes = [set([(i1+i2,j1+j2) for i1 in range(3) for j1 in range(3)])
@@ -62,6 +67,7 @@ class puzzle:
         self.board[row][col] = val
         self.rows[row].remove((row,col))
         self.cols[col].remove((row,col))
+        self.cells.discard((row,col))
         cube = int(col/3) + 3* int(row/3)
         self.cubes[cube].remove((row,col))
 
@@ -74,19 +80,29 @@ class puzzle:
         return dirty
 
 
-    def remove_val(self, row, col, cube, val):
-        new_set = []
-        vector = set.union(self.rows[row], self.cols[col], self.cubes[cube])
+    def remove_val(self, row, col, cube, val, exclude = set()):
         dirty = set()
+        new_set = []
+        vector = set()
+        if row >= 0:
+            vector.update(self.rows[row])
+        if col >= 0:
+            vector.update(self.cols[col])
+        if cube >= 0:
+            vector.update(self.cubes[cube])
+        vector.discard(exclude)
+        
         for t_row, t_col in vector:
             cell = self.board[t_row][t_col]
             if type(cell) is int:
+                continue
+            if (t_row, t_col) in exclude:
                 continue
             if val in cell:
                 cell.remove(val)
                 lx = len(cell)
                 if lx == 0:
-                    raise Exception("Cell conflict")
+                    raise no_solution("Cell conflict")
                 elif lx == 1:
                     result, = cell
                     new_set.append((t_row, t_col, result))
